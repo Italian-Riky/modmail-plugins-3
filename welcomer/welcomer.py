@@ -8,6 +8,10 @@ from .models import apply_vars, SafeString
 
 
 class Welcomer(commands.Cog):
+    """
+    Saluta tutti i nuovi membri del tuo server! (plugin tradotto da [Italian Riky](https://github.com/Italian-Riky))
+    """
+
     def __init__(self, bot):
         self.bot = bot
         self.db = bot.plugin_db.get_partition(self)
@@ -20,9 +24,9 @@ class Welcomer(commands.Cog):
             self.invite_cache[g.id] = {i for i in await g.invites()}
 
     async def get_used_invite(self, guild):
-        """Checks which invite is used in join via the following strategies:
-        1. Check if invite doesn't exist anymore
-        2. Check invite uses
+        """Controlla quale invito viene utilizzato per partecipare tramite le seguenti strategie:
+         1. Controlla se l'invito non esiste più
+         2. Controlla gli usi degli inviti
         """
         update_invite_cache = {i for i in await guild.invites()}
 
@@ -36,7 +40,7 @@ class Welcomer(commands.Cog):
                 else:
                     if new_invite.uses > i.uses:
                         return new_invite
-        return Box(default_box=True, default_box_attr='{unable to get invite}')
+        return Box(default_box=True, default_box_attr='{impossibile ottenere un invito}')
 
     def apply_vars_dict(self, member, message, invite):
         for k, v in message.items():
@@ -70,8 +74,8 @@ class Welcomer(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def welcomer(self, ctx, channel: discord.TextChannel, *, message):
-        """Sets up welcome command. Check [here](https://github.com/fourjr/modmail-plugins/blob/master/welcomer/README.md)
-        for complex usage.
+        """Imposta il messaggio di benvenuto. Controlla [qui](https://github.com/fourjr/modmail-plugins/blob/master/welcomer/README.md)
+        Per un'uso completo.
         """
         # Example usage: `welcomer #general Hello {member.name}`
         # """
@@ -91,9 +95,9 @@ class Welcomer(commands.Cog):
                 {'$set': {'welcomer': {'channel': str(channel.id), 'message': message}}},
                 upsert=True
             )
-            await ctx.send(f'Message sent to {channel.mention} for testing.\nNote: invites cannot be rendered in test message')
+            await ctx.send(f'Messaggio inviato in {channel.mention} per test.\nNota: gli inviti non possono essere visualizzati nel messaggio di prova')
         else:
-            await ctx.send('Invalid welcome message syntax.')
+            await ctx.send('Sintassi del messaggio di benvenuto invalida.')
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -108,7 +112,7 @@ class Welcomer(commands.Cog):
                 else:
                     await channel.send('Invalid welcome message')
             else:
-                print('Welcomer plugin not found: {getattr(channel, "id", None}')
+                print('Welcomer plugin non trovato: {getattr(channel, "id", None}')
 
 
 def setup(bot):

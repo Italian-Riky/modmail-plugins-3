@@ -8,7 +8,7 @@ from core.models import PermissionLevel
 
 
 class EmojiSuggestor(commands.Cog):
-    """Sets up emoji suggestor channel in Modmail discord."""
+    """Imposta un canale dove la gente può suggerire delle emoji! (Plugin tradotto da [Italian Riky](https://github.com/Italian-Riky))."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -34,15 +34,15 @@ class EmojiSuggestor(commands.Cog):
                 await self.delete(message, warning=None)
             elif len(message.attachments):
                 if len(message.attachments) > 1:
-                    await self.delete(message, warning=f'{message.author.mention}, send 1 emoji at a time.')
+                    await self.delete(message, warning=f'{message.author.mention}, Invia una sola emoji alla volta!.')
                 elif not (message.attachments[0].filename.endswith('.png') or message.attachments[0].filename.endswith('.gif')):
-                    await self.delete(message, warning=f'{message.author.mention}, only png or gif attachments are allowed.')
+                    await self.delete(message, warning=f'{message.author.mention}, Sono permessi solo PNG/GIF.')
                 else:
                     for r in self.config['emojis']:
                         await message.add_reaction(discord.utils.get(message.guild.emojis, id=r))
                         await asyncio.sleep(0.1)
             else:
-                await self.delete(message, warning=f'{message.author.mention}, only images + captions are allowed. If you wish to add a caption, edit your original message.')
+                await self.delete(message, warning=f'{message.author.mention}, sono consentite solo immagini + didascalie. Se desideri aggiungere una didascalia, modifica il messaggio originale..')
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -68,42 +68,42 @@ class EmojiSuggestor(commands.Cog):
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
     @commands.group(invoke_without_command=True)
     async def emojichannels(self, ctx):
-        """Configure Emoji Suggestor Channel"""
+        """Imposta il canale per suggerire le emoji"""
         await ctx.send_help(ctx.command)
 
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
     @emojichannels.command(aliases=['channel'])
     async def channels(self, ctx, *channels_: discord.TextChannel):
-        """Configure Emoji Channel(s)"""
+        """Configura canale / i Emoji"""
         self.config = await self.db.find_one_and_update(
             {'_id': 'config'}, {'$set': {'channel_ids': [i.id for i in channels_]}},
             return_document=ReturnDocument.AFTER,
             upsert=True
         )
-        await ctx.send('Config set.')
+        await ctx.send('Configurazione impostata.')
 
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
     @emojichannels.command()
     async def emojis(self, ctx, *emojis: discord.Emoji):
-        """Configure Emojis used during voting"""
+        """Configura gli emoji usati durante la votazione"""
         self.config = await self.db.find_one_and_update(
             {'_id': 'config'}, {'$set': {'emojis': [i.id for i in emojis]}},
             return_document=ReturnDocument.AFTER,
             upsert=True
         )
-        await ctx.send('Config set.')
+        await ctx.send('Configurazione impostata.')
 
         
     @checks.has_permissions(PermissionLevel.ADMINISTRATOR)
     @emojichannels.command()
     async def toggle(self, ctx):
-        """Toggles status of the plugin"""
+        """Imposta lo stato del plugin"""
         self.config = await self.db.find_one_and_update(
             {'_id': 'config'}, {'$set': {'status': not self.config.get('status', True)}},
             return_document=ReturnDocument.AFTER,
             upsert=True
         )
-        await ctx.send(f'Config set: Status {self.config.get("status", True)}.')
+        await ctx.send(f'Configurazione: Stato {self.config.get("status", True)}.')
 
 
 def setup(bot):

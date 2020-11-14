@@ -3,52 +3,52 @@ from discord.ext import commands
 
 
 class UtilityExamples(commands.Cog):
-    """Provides basic utility commands"""
+    """Semplici comandi di utilità (Plugin  tradotto da [Italian Riky](https://github.com(Italian-Riky))"""
     def __init__(self, bot):
         self.bot = bot
         self.db = bot.plugin_db.get_partition(self)
 
     @commands.command()
     async def say(self, ctx, *, message: commands.clean_content):
-        """Repeats after you"""
+        """Ripeto dopo di te"""
         await ctx.send(message)
 
     @commands.group(invoke_without_command=True)
     async def group(self, ctx):
-        """Allows user to set their group"""
+        """Consente all'utente di impostare il proprio gruppo"""
         await ctx.send_help(ctx.command)
 
     @group.command(name='set')
     async def set_(self, ctx, group_name: str.title):
-        """Sets their group"""
-        valid_groups = ('Red', 'Green', 'Blue')
+        """Imposta il loro gruppo"""
+        valid_groups = ('Rosso', 'Verde', 'Blu')
         if group_name not in valid_groups:
-            await ctx.send('Invalid group. Pick one from: ' + ', '.join(valid_groups))
+            await ctx.send('Gruppo invalido. Scegline uno tra: ' + ', '.join(valid_groups))
         else:
             await self.db.find_one_and_update(
                 {'user_id': str(ctx.author.id)},
                 {'$set': {'group': group_name}},
                 upsert=True
             )
-            await ctx.send(f'Welcome to {group_name}!')
+            await ctx.send(f'Benvenuto in {group_name}!')
 
     @group.command()
     async def get(self, ctx, member: discord.Member = None):
-        """Gets a user's group"""
+        """Trova il gruppo di una persona."""
         member = member or ctx.author
         data = await self.db.find_one({'user_id': str(member.id)})
         if data:
-            await ctx.send(f"{member.name} is in {data['group']}!")
+            await ctx.send(f"{member.name} è in {data['group']}!")
         else:
-            await ctx.send(f"{member.name} hasn't picked a group :(")
+            await ctx.send(f"{member.name} non ha scelto un gruppo :(")
 
     @commands.has_permissions(kick_members=True)
     @group.command()
     async def reset(self, ctx, member: discord.Member):
-        """Resets a user's group
-        Only available for mods with kick_members permission"""
+        """Reimposta il gruppo di una persona 
+        Disponibile solo per i moderatori con il permesso kick_members """
         await self.db.find_one_and_delete({'user_id': str(member.id)})
-        await ctx.send('Member reset')
+        await ctx.send('Membro resettato')
 
 
 def setup(bot):
